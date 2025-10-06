@@ -35,6 +35,8 @@ const FeatureCreep = () => {
     extraCards: 0
   });
 
+  const [reshuffleCount, setReshuffleCount] = useState(0);
+
 
   // Initialize shop on first load
   useEffect(() => {
@@ -315,6 +317,45 @@ const FeatureCreep = () => {
     }
   };
 
+  const getReshuffleCost = () => {
+    return 5 + (reshuffleCount * 2);
+  };
+
+  const handleReshuffle = () => {
+    const cost = getReshuffleCost();
+    if (power < cost) return;
+
+    setPower(power - cost);
+    setReshuffleCount(reshuffleCount + 1);
+    
+    // Clear shop and fill with new cards in one operation
+    const availableCards = featureDeck.filter(card =>
+      !purchasedFeatures.find(p => p.id === card.id)
+    );
+
+    const newCards = [];
+    for (let i = 0; i < shopSlots && availableCards.length > 0; i++) {
+      const randomIndex = Math.floor(Math.random() * availableCards.length);
+      const card = availableCards.splice(randomIndex, 1)[0];
+      newCards.push(card);
+    }
+
+    setShopFeatures(newCards); // Replace all shop cards at once
+  };
+
+  const getShopSlotCost = () => {
+    const slotsBought = shopSlots - 3; // Starting with 3 slots available
+    return 5 + (slotsBought * 5);
+  };
+
+  const buyShopSlot = () => {
+    const cost = getShopSlotCost();
+    if (power < cost || shopSlots >= 8) return;
+
+    setPower(power - cost);
+    setShopSlots(shopSlots + 1);
+  };
+
   const getCategoryColor = (category: string, rarity?: string) => {
     // For legendary cards, use darker text for better contrast
     const isLegendary = rarity === 'legendary';
@@ -489,23 +530,11 @@ const FeatureCreep = () => {
 
       {/* Booster Packs Section */}
       <div className={`rounded-xl shadow-lg p-6 mb-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-        <h2 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+        <h2 className={`text-2xl font-bold mb-4 flex items-center justify-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
           <Package className={darkMode ? 'text-green-400' : 'text-green-600'} />
           Booster Packs
         </h2>
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-          <div className={`text-center ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            <p className="text-sm">Unopened Packs</p>
-            <p className="text-3xl font-bold">{boosterPacks}</p>
-          </div>
-          <button
-            onClick={openBoosterPack}
-            disabled={boosterPacks <= 0}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold text-lg transition-colors flex items-center gap-2"
-          >
-            <Package className="w-5 h-5" />
-            Open Booster Pack (8 creep + 4 feature)
-          </button>
+        <div className="flex flex-col gap-4 items-center justify-center">
           <button
             onClick={buyBoosterPack}
             disabled={gold < 30}
@@ -514,6 +543,18 @@ const FeatureCreep = () => {
             <Coins className="w-4 h-4" />
             Buy Pack (30 Gold)
           </button>
+          <button
+            onClick={openBoosterPack}
+            disabled={boosterPacks <= 0}
+            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold text-lg transition-colors flex items-center gap-2"
+          >
+            <Package className="w-5 h-5" />
+            Open Pack
+          </button>
+          <div className={`text-center ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className="text-sm">Unopened Packs</p>
+            <p className="text-3xl font-bold">{boosterPacks}</p>
+          </div>
         </div>
       </div>
 
@@ -521,7 +562,7 @@ const FeatureCreep = () => {
         {/* Creep Cards Section */}
         <div className="space-y-6">
           <div className={`rounded-xl shadow-lg p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+            <h2 className={`text-2xl font-bold mb-4 flex items-center justify-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               <Shuffle className={darkMode ? 'text-purple-400' : 'text-purple-600'} />
               Creep Cards
             </h2>
@@ -608,19 +649,22 @@ const FeatureCreep = () => {
         {/* Feature Shop Section */}
         <div className="space-y-6">
           <div className={`rounded-xl shadow-lg p-6 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <h2 className={`text-2xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+            <h2 className={`text-2xl font-bold mb-4 flex items-center justify-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               <Shuffle className={darkMode ? 'text-green-400' : 'text-green-600'} />
-              Feature Shop ({shopSlots} slots)
+              Feature Shop
             </h2>
 
             <div className="mb-4 flex justify-center gap-2">
               <button
                 onClick={() => setViewingFeatureDeck(true)}
                 disabled={featureDeck.length === 0}
-                className={`text-sm px-3 py-1 rounded transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`text-sm px-3 py-1 rounded transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'} disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1`}
               >
-                <Eye className="w-3 h-3 inline mr-1" />
-                View Deck ({getSortedFeatureDeck().length} cards)
+                <Eye className="w-3 h-3" />
+                <div className="flex flex-col leading-tight">
+                  <span>View Deck</span>
+                  <span>({getSortedFeatureDeck().length} 🂠)</span>
+                </div>
               </button>
               <button
                 onClick={fillShopSlots}
@@ -633,6 +677,24 @@ const FeatureCreep = () => {
                 <Shuffle className="w-3 h-3" />
                 Restock Shop
               </button>
+              <button
+                onClick={handleReshuffle}
+                disabled={power < getReshuffleCost()}
+                className={`text-sm px-3 py-1 rounded transition-colors ${darkMode ? 'bg-yellow-700 hover:bg-yellow-600 text-gray-300' : 'bg-yellow-200 hover:bg-yellow-300 text-yellow-700'} disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1`}
+              >
+                <RefreshCw className="w-3 h-3" />
+                Reshuffle ({getReshuffleCost()}⚡)
+              </button>
+              {shopSlots < 8 && (
+                <button
+                  onClick={buyShopSlot}
+                  disabled={power < getShopSlotCost()}
+                  className={`text-sm px-3 py-1 rounded transition-colors ${darkMode ? 'bg-blue-700 hover:bg-blue-600 text-gray-300' : 'bg-blue-200 hover:bg-blue-300 text-blue-700'} disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1`}
+                >
+                  <Coins className="w-3 h-3" />
+                  Buy Slot ({getShopSlotCost()}⚡)
+                </button>
+              )}
             </div>
 
             {/* Shop Slots */}
