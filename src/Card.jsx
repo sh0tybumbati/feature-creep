@@ -61,18 +61,18 @@ const Card = ({
   const description = card.text;
 
   // Determine opacity for implemented features
-  const opacity = isImplemented ? 'opacity-75' : '';
+  const opacity = '';
   const disabledOpacity = !canAfford && type === 'shop' ? 'opacity-60' : '';
   
   // Booster pack specific styling
   const isBooster = type === 'booster';
-  const cardSize = isBooster ? 'w-28 h-40' : 'w-24 h-36';
+  const cardSize = isBooster ? 'w-36 h-52' : 'w-32 h-48';
   const boosterOpacity = card.isDuplicate ? 'opacity-75' : '';
-  const boosterRing = isBooster && card.isNew ? 'ring-4 ring-yellow-400/50' : 
+  const boosterRing = isBooster && card.isNew ? 'ring-4 ring-yellow-400/50' :
                      isBooster && card.isDuplicate ? 'ring-4 ring-red-400/50' : '';
 
   return (
-    <div className={`relative ${cardSize} ${opacity} ${disabledOpacity} ${boosterOpacity} ${boosterRing} transform hover:-translate-y-2 hover:scale-105 transition-all duration-300`}>
+    <div className={`relative ${cardSize} ${opacity} ${disabledOpacity} ${boosterOpacity} ${boosterRing} transform hover:-translate-y-2 hover:scale-105 hover:z-50 transition-all duration-300`}>
       {/* Outer ornate frame */}
       <div className={`absolute inset-0 bg-gradient-to-br ${rarityStyles.gradient} rounded-lg border-3 ${rarityStyles.border} ${rarityStyles.ring} ${rarityStyles.glow} hover:shadow-2xl transition-all duration-300`}></div>
       
@@ -187,12 +187,12 @@ const Card = ({
       )}
 
       {/* Icon in middle */}
-      <div className="flex justify-center items-center mt-2">
+      <div className="flex justify-center items-center mt-3">
         <div className={`relative ${(card.rarity === 'rare' || card.rarity === 'epic' || card.rarity === 'legendary') ? 'drop-shadow-lg' : ''}`}>
           {(card.rarity === 'epic' || card.rarity === 'legendary') && (
             <div className={`absolute inset-0 ${card.rarity === 'legendary' ? 'bg-yellow-400/20' : 'bg-purple-400/20'} rounded-full blur-sm animate-pulse`}></div>
           )}
-          <span className={`relative text-xl ${card.rarity === 'legendary' ? 'filter drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' : card.rarity === 'epic' ? 'filter drop-shadow-[0_0_6px_rgba(168,85,247,0.4)]' : ''}`}>{card.icon}</span>
+          <span className={`relative text-4xl ${card.rarity === 'legendary' ? 'filter drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' : card.rarity === 'epic' ? 'filter drop-shadow-[0_0_6px_rgba(168,85,247,0.4)]' : ''}`}>{card.icon}</span>
         </div>
       </div>
 

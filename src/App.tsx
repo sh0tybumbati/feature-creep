@@ -56,6 +56,7 @@ const FeatureCreep = () => {
     };
 
     const selectedCards = [];
+    const selectedIds = new Set();
 
     for (let i = 0; i < count; i++) {
       // Generate random number between 0-100
@@ -75,18 +76,20 @@ const FeatureCreep = () => {
         targetRarity = 'common';
       }
 
-      // Filter cards by target rarity
-      let cardsOfRarity = cards.filter(card => card.rarity === targetRarity);
+      // Filter cards by target rarity and exclude already selected cards
+      let cardsOfRarity = cards.filter(card => card.rarity === targetRarity && !selectedIds.has(card.id));
 
-      // If no cards of this rarity exist, fall back to any card
+      // If no cards of this rarity exist, fall back to any unselected card
       if (cardsOfRarity.length === 0) {
-        cardsOfRarity = [...cards];
+        cardsOfRarity = cards.filter(card => !selectedIds.has(card.id));
       }
 
       // Select random card from filtered list
       if (cardsOfRarity.length > 0) {
         const randomIndex = Math.floor(Math.random() * cardsOfRarity.length);
-        selectedCards.push(cardsOfRarity[randomIndex]);
+        const selectedCard = cardsOfRarity[randomIndex];
+        selectedCards.push(selectedCard);
+        selectedIds.add(selectedCard.id);
       }
     }
 
@@ -615,7 +618,7 @@ const FeatureCreep = () => {
             </div>
 
             {/* Drawn Creep Cards */}
-            <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 max-h-96 overflow-y-auto p-1">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-96 overflow-y-auto p-6 pt-8">
               {drawnCreepCards.map((card, index) => {
                 const powerValue = card.boostedPower || Math.floor(card.cost * getRarityMultiplier(card.rarity));
                 return (
@@ -698,7 +701,7 @@ const FeatureCreep = () => {
             </div>
 
             {/* Shop Slots */}
-            <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {shopFeatures.map(feature => {
                 const canAfford = power >= feature.cost;
                 return (
@@ -735,7 +738,7 @@ const FeatureCreep = () => {
                   <h3 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-green-400' : 'text-green-800'}`}>
                     Owned Features ({purchasedFeatures.filter(f => !f.implemented).length})
                   </h3>
-                  <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                     {purchasedFeatures.filter(f => !f.implemented).map((feature) => (
                       <Card
                         key={feature.id}
@@ -759,7 +762,7 @@ const FeatureCreep = () => {
                   <h3 className={`text-lg font-semibold mb-3 ${darkMode ? 'text-blue-400' : 'text-blue-800'}`}>
                     Implemented Features ({purchasedFeatures.filter(f => f.implemented).length})
                   </h3>
-                  <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                     {purchasedFeatures.filter(f => f.implemented).map((feature) => (
                       <Card
                         key={feature.id}
@@ -796,7 +799,7 @@ const FeatureCreep = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {getSortedCreepDeck().map((card, index) => (
                 <Card
                   key={`deck-${card.id}-${index}`}
@@ -829,7 +832,7 @@ const FeatureCreep = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {creepDiscard.map((card, index) => (
                 <Card
                   key={`discard-${card.id}-${index}`}
@@ -862,7 +865,7 @@ const FeatureCreep = () => {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {getSortedFeatureDeck().map((card, index) => (
                 <Card
                   key={`deck-${card.id}-${index}`}
@@ -903,7 +906,7 @@ const FeatureCreep = () => {
             </div>
 
             <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>Creep Cards (8)</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 justify-items-center mb-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 justify-items-center mb-6">
               {revealedCards.creep.map((card, index) => (
                 <Card
                   key={`revealed-creep-${card.id}-${index}`}
@@ -920,7 +923,7 @@ const FeatureCreep = () => {
             </div>
 
             <h3 className={`text-xl font-bold mb-3 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>Feature Cards (4)</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 justify-items-center">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 justify-items-center">
               {revealedCards.feature.map((card, index) => (
                 <Card
                   key={`revealed-feature-${card.id}-${index}`}
